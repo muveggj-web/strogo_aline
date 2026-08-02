@@ -1,608 +1,73 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ПРИВЕТ ОТ СТАСА</title>
-<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@700&display=swap" rel="stylesheet">
-<style>
-  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
-
-  :root {
-    --red: #e8152e;
-    --orange: #ff4400;
-    --dark: #050505;
-    --glow: rgba(232, 21, 46, 0.7);
-  }
-
-  body {
-    background: var(--dark);
-    overflow: hidden;
-    height: 100vh;
-    width: 100vw;
-    cursor: none;
-    font-family: 'Oswald', sans-serif;
-    user-select: none;
-  }
-
-  canvas#bg { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; }
-  canvas#fx { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 2; pointer-events: none; }
-  canvas#trails { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 3; pointer-events: none; }
-
-  .center {
-    position: fixed;
-    top: 50%; left: 50%;
-    transform: translate(-50%, -50%);
-    z-index: 10;
-    text-align: center;
-    pointer-events: none;
-  }
-
-  .main-text {
-    font-size: clamp(42px, 13vw, 200px);
-    font-weight: 700;
-    color: #fff;
-    text-transform: uppercase;
-    line-height: 0.95;
-    position: relative;
-    letter-spacing: 0.02em;
-    animation: breathe 3s ease-in-out infinite;
-    text-shadow:
-      0 0 10px var(--glow),
-      0 0 40px var(--glow),
-      0 0 100px rgba(232, 21, 46, 0.25);
-  }
-
-  .main-text::before,
-  .main-text::after {
-    content: attr(data-text);
-    position: absolute;
-    top: 0; left: 0;
-    width: 100%; height: 100%;
-    pointer-events: none;
-  }
-
-  .main-text::before {
-    color: var(--red);
-    animation: g1 2.5s infinite linear alternate-reverse;
-    clip-path: inset(0 0 55% 0);
-    opacity: 0.9;
-  }
-
-  .main-text::after {
-    color: var(--orange);
-    animation: g2 3s infinite linear alternate-reverse;
-    clip-path: inset(55% 0 0 0);
-    opacity: 0.85;
-  }
-
-  @keyframes g1 {
-    0%, 88% { transform: translate(0); }
-    89% { transform: translate(-12px, -3px) skewX(-3deg); }
-    91% { transform: translate(8px, 2px) skewX(2deg); }
-    93% { transform: translate(-6px, 1px); }
-    95% { transform: translate(10px, -2px) skewX(-1deg); }
-    100% { transform: translate(0); }
-  }
-
-  @keyframes g2 {
-    0%, 85% { transform: translate(0); }
-    86% { transform: translate(10px, 3px) skewX(3deg); }
-    89% { transform: translate(-8px, -2px) skewX(-2deg); }
-    92% { transform: translate(5px, 2px); }
-    94% { transform: translate(-12px, -3px) skewX(2deg); }
-    100% { transform: translate(0); }
-  }
-
-  @keyframes breathe {
-    0%, 100% { transform: scale(1); filter: brightness(1); }
-    50% { transform: scale(1.04); filter: brightness(1.4); }
-  }
-
-  .strike {
-    position: absolute;
-    top: 50%;
-    left: -5%;
-    width: 110%;
-    height: 4px;
-    background: var(--red);
-    transform: translateY(-50%) scaleX(0);
-    animation: strikeIn 1.5s 0.5s cubic-bezier(0.22, 1, 0.36, 1) forwards;
-    box-shadow: 0 0 20px var(--glow), 0 0 60px var(--glow);
-  }
-
-  @keyframes strikeIn {
-    0% { transform: translateY(-50%) scaleX(0); opacity: 1; }
-    60% { transform: translateY(-50%) scaleX(1); opacity: 1; }
-    100% { transform: translateY(-50%) scaleX(1); opacity: 0; }
-  }
-
-  .sub {
-    font-size: clamp(12px, 2vw, 22px);
-    color: rgba(255, 255, 255, 0.25);
-    margin-top: 24px;
-    letter-spacing: 0.6em;
-    text-transform: uppercase;
-    animation: subPulse 5s ease-in-out infinite alternate;
-  }
-
-  @keyframes subPulse {
-    0% { opacity: 0.15; letter-spacing: 0.6em; }
-    100% { opacity: 0.4; letter-spacing: 0.8em; }
-  }
-
-  .ring {
-    position: absolute;
-    top: 50%; left: 50%;
-    transform: translate(-50%, -50%);
-    border-radius: 50%;
-    border: 1px solid rgba(232, 21, 46, 0.2);
-    animation: ringOut 5s ease-out infinite;
-    pointer-events: none;
-  }
-  .ring:nth-child(1) { animation-delay: 0s; }
-  .ring:nth-child(2) { animation-delay: 1.25s; }
-  .ring:nth-child(3) { animation-delay: 2.5s; }
-  .ring:nth-child(4) { animation-delay: 3.75s; }
-
-  @keyframes ringOut {
-    0% { width: 80px; height: 80px; opacity: 0.7; border-width: 2px; }
-    100% { width: 200vmax; height: 200vmax; opacity: 0; border-width: 0.3px; }
-  }
-
-  .vignette {
-    position: fixed;
-    inset: 0;
-    background: radial-gradient(ellipse at center, transparent 20%, rgba(5,5,5,0.9) 100%);
-    z-index: 5;
-    pointer-events: none;
-  }
-
-  .scanlines {
-    position: fixed;
-    inset: 0;
-    z-index: 6;
-    pointer-events: none;
-    background: repeating-linear-gradient(
-      0deg,
-      transparent,
-      transparent 2px,
-      rgba(0,0,0,0.06) 2px,
-      rgba(0,0,0,0.06) 4px
-    );
-  }
-
-  .noise {
-    position: fixed;
-    inset: 0;
-    z-index: 7;
-    pointer-events: none;
-    opacity: 0.035;
-    mix-blend-mode: overlay;
-    animation: noiseShift 0.15s steps(3) infinite;
-  }
-
-  @keyframes noiseShift {
-    0% { transform: translate(0, 0); }
-    33% { transform: translate(-2px, 1px); }
-    66% { transform: translate(1px, -2px); }
-    100% { transform: translate(0, 0); }
-  }
-
-  .flash-overlay {
-    position: fixed;
-    inset: 0;
-    background: #fff;
-    z-index: 100;
-    opacity: 0;
-    pointer-events: none;
-  }
-
-  .cursor-dot {
-    position: fixed;
-    width: 10px; height: 10px;
-    background: var(--red);
-    border-radius: 50%;
-    pointer-events: none;
-    z-index: 200;
-    transform: translate(-50%, -50%);
-    box-shadow: 0 0 15px var(--glow), 0 0 40px var(--glow);
-  }
-
-  .cursor-cross {
-    position: fixed;
-    pointer-events: none;
-    z-index: 199;
-    transform: translate(-50%, -50%);
-  }
-
-  .cursor-cross::before,
-  .cursor-cross::after {
-    content: '';
-    position: absolute;
-    background: rgba(232, 21, 46, 0.4);
-  }
-  .cursor-cross::before {
-    width: 1px; height: 36px;
-    top: -18px; left: 0;
-  }
-  .cursor-cross::after {
-    width: 36px; height: 1px;
-    top: 0; left: -18px;
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    *, *::before, *::after { animation: none !important; transition: none !important; }
-  }
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Привет</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      background: #050a05;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      overflow: hidden;
+    }
+    body::before {
+      content: '';
+      position: fixed;
+      width: 500px;
+      height: 500px;
+      border-radius: 50%;
+      background: rgba(34,197,94,0.06);
+      filter: blur(120px);
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      animation: pulse 6s ease-in-out infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 0.4; scale: 1; }
+      50% { opacity: 1; scale: 1.3; }
+    }
+    h1 {
+      position: relative;
+      font-family: 'Inter', sans-serif;
+      font-size: clamp(48px, 12vw, 110px);
+      font-weight: 800;
+      letter-spacing: -0.05em;
+      line-height: 1;
+      text-align: center;
+      color: transparent;
+      background: linear-gradient(180deg, #ffffff 20%, #4ade80 80%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      animation: breathe 5s ease-in-out infinite alternate;
+    }
+    h1::after {
+      content: 'Привет, вонючка';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(180deg, #4ade80 20%, #059669 80%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      filter: blur(30px);
+      opacity: 0;
+      animation: shadow-glow 5s ease-in-out infinite alternate;
+    }
+    @keyframes breathe {
+      0%   { filter: drop-shadow(0 0 30px rgba(34,197,94,0.1)) brightness(0.9); }
+      100% { filter: drop-shadow(0 0 80px rgba(34,197,94,0.4)) brightness(1.1); }
+    }
+    @keyframes shadow-glow {
+      0%   { opacity: 0.2; }
+      100% { opacity: 0.7; }
+    }
+  </style>
 </head>
 <body>
-
-<canvas id="bg"></canvas>
-<canvas id="fx"></canvas>
-<canvas id="trails"></canvas>
-
-<div class="vignette"></div>
-<div class="scanlines"></div>
-<canvas class="noise" id="noise"></canvas>
-<div class="flash-overlay" id="flashOverlay"></div>
-
-<div class="center">
-  <div class="ring"></div>
-  <div class="ring"></div>
-  <div class="ring"></div>
-  <div class="ring"></div>
-  <div style="position:relative; display:inline-block;">
-    <div class="main-text" data-text="ПРИВЕТ ОТ СТАСА">ПРИВЕТ ОТ СТАСА</div>
-    <div class="strike"></div>
-  </div>
-  <div class="sub">не забудешь</div>
-</div>
-
-<div class="cursor-dot" id="cursorDot"></div>
-<div class="cursor-cross" id="cursorCross"></div>
-
-<script>
-// === Шумовая текстура ===
-const noiseCanvas = document.getElementById('noise');
-const noiseCtx = noiseCanvas.getContext('2d');
-function generateNoise() {
-  noiseCanvas.width = 256;
-  noiseCanvas.height = 256;
-  const imageData = noiseCtx.createImageData(256, 256);
-  for (let i = 0; i < imageData.data.length; i += 4) {
-    const v = Math.random() * 255;
-    imageData.data[i] = v;
-    imageData.data[i+1] = v;
-    imageData.data[i+2] = v;
-    imageData.data[i+3] = 255;
-  }
-  noiseCtx.putImageData(imageData, 0, 0);
-}
-generateNoise();
-
-// === Курсор ===
-const dot = document.getElementById('cursorDot');
-const cross = document.getElementById('cursorCross');
-let mx = innerWidth / 2, my = innerHeight / 2;
-let cx = mx, cy = my;
-
-document.addEventListener('mousemove', e => {
-  mx = e.clientX;
-  my = e.clientY;
-  dot.style.left = mx + 'px';
-  dot.style.top = my + 'px';
-});
-
-function cursorLoop() {
-  cx += (mx - cx) * 0.1;
-  cy += (my - cy) * 0.1;
-  cross.style.left = cx + 'px';
-  cross.style.top = cy + 'px';
-  requestAnimationFrame(cursorLoop);
-}
-cursorLoop();
-
-// === Холсты ===
-const bgCanvas = document.getElementById('bg');
-const bgCtx = bgCanvas.getContext('2d');
-const fxCanvas = document.getElementById('fx');
-const fxCtx = fxCanvas.getContext('2d');
-const tCanvas = document.getElementById('trails');
-const tCtx = tCanvas.getContext('2d');
-
-function resize() {
-  [bgCanvas, fxCanvas, tCanvas].forEach(c => {
-    c.width = innerWidth;
-    c.height = innerHeight;
-  });
-}
-resize();
-addEventListener('resize', resize);
-
-// === Искры на фоне ===
-class Spark {
-  constructor() { this.reset(); }
-  reset() {
-    this.x = Math.random() * bgCanvas.width;
-    this.y = Math.random() * bgCanvas.height;
-    this.size = Math.random() * 1.8 + 0.3;
-    this.vx = (Math.random() - 0.5) * 0.6;
-    this.vy = (Math.random() - 0.5) * 0.6;
-    this.life = Math.random();
-    this.maxLife = 0.5 + Math.random() * 0.5;
-  }
-  update() {
-    this.x += this.vx;
-    this.y += this.vy;
-    this.life += 0.004;
-    if (this.life > this.maxLife) this.reset();
-  }
-  draw() {
-    const a = Math.sin((this.life / this.maxLife) * Math.PI) * 0.6;
-    bgCtx.beginPath();
-    bgCtx.arc(this.x, this.y, Math.max(0.1, this.size), 0, Math.PI * 2);
-    bgCtx.fillStyle = `rgba(232, 21, 46, ${a})`;
-    bgCtx.fill();
-  }
-}
-
-const sparks = Array.from({ length: 180 }, () => new Spark());
-
-// Линии между искрами
-function drawLinks() {
-  for (let i = 0; i < sparks.length; i++) {
-    for (let j = i + 1; j < sparks.length; j++) {
-      const dx = sparks[i].x - sparks[j].x;
-      const dy = sparks[i].y - sparks[j].y;
-      const d = dx * dx + dy * dy;
-      if (d < 5000) {
-        const a = (1 - d / 5000) * 0.1;
-        bgCtx.beginPath();
-        bgCtx.moveTo(sparks[i].x, sparks[i].y);
-        bgCtx.lineTo(sparks[j].x, sparks[j].y);
-        bgCtx.strokeStyle = `rgba(232, 21, 46, ${a})`;
-        bgCtx.lineWidth = 0.4;
-        bgCtx.stroke();
-      }
-    }
-  }
-}
-
-// Центральное свечение
-let glowT = 0;
-function drawGlow() {
-  glowT += 0.018;
-  const intensity = (Math.sin(glowT) * 0.5 + 0.5) * 0.3 + 0.05;
-  const cx = bgCanvas.width / 2;
-  const cy = bgCanvas.height / 2;
-  const r = Math.max(bgCanvas.width, bgCanvas.height) * 0.45;
-  const g = bgCtx.createRadialGradient(cx, cy, 0, cx, cy, Math.max(1, r));
-  g.addColorStop(0, `rgba(232, 21, 46, ${intensity})`);
-  g.addColorStop(0.3, `rgba(160, 10, 30, ${intensity * 0.4})`);
-  g.addColorStop(1, 'rgba(5, 5, 5, 0)');
-  bgCtx.fillStyle = g;
-  bgCtx.fillRect(0, 0, bgCanvas.width, bgCanvas.height);
-}
-
-// === Молнии ===
-class Lightning {
-  constructor(x1, y1, x2, y2) {
-    this.segments = [];
-    this.life = 1;
-    this.decay = 0.03 + Math.random() * 0.03;
-    this.build(x1, y1, x2, y2, 6);
-  }
-  build(x1, y1, x2, y2, depth) {
-    if (depth <= 0) {
-      this.segments.push({ x1, y1, x2, y2 });
-      return;
-    }
-    const mx = (x1 + x2) / 2 + (Math.random() - 0.5) * Math.abs(x2 - x1) * 0.5;
-    const my = (y1 + y2) / 2 + (Math.random() - 0.5) * Math.abs(y2 - y1) * 0.5;
-    this.build(x1, y1, mx, my, depth - 1);
-    this.build(mx, my, x2, y2, depth - 1);
-    // Ветка
-    if (Math.random() > 0.6 && depth > 2) {
-      const bx = mx + (Math.random() - 0.5) * 150;
-      const by = my + (Math.random() - 0.5) * 150;
-      this.build(mx, my, bx, by, depth - 2);
-    }
-  }
-  update() { this.life -= this.decay; }
-  draw() {
-    if (this.life <= 0) return;
-    fxCtx.save();
-    fxCtx.globalAlpha = this.life;
-    fxCtx.shadowColor = 'rgba(255, 100, 50, 0.8)';
-    fxCtx.shadowBlur = 15;
-    fxCtx.strokeStyle = `rgba(255, 200, 180, ${this.life})`;
-    fxCtx.lineWidth = 1.5;
-    fxCtx.beginPath();
-    this.segments.forEach(s => {
-      fxCtx.moveTo(s.x1, s.y1);
-      fxCtx.lineTo(s.x2, s.y2);
-    });
-    fxCtx.stroke();
-    // Ядро — яркая линия
-    fxCtx.shadowBlur = 0;
-    fxCtx.strokeStyle = `rgba(255, 255, 255, ${this.life * 0.7})`;
-    fxCtx.lineWidth = 0.5;
-    fxCtx.beginPath();
-    this.segments.forEach(s => {
-      fxCtx.moveTo(s.x1, s.y1);
-      fxCtx.lineTo(s.x2, s.y2);
-    });
-    fxCtx.stroke();
-    fxCtx.restore();
-  }
-}
-
-let lightnings = [];
-
-// Случайные молнии
-function spawnRandomLightning() {
-  const cx = bgCanvas.width / 2;
-  const cy = bgCanvas.height / 2;
-  const angle = Math.random() * Math.PI * 2;
-  const dist = 80 + Math.random() * 100;
-  const ex = cx + Math.cos(angle) * (300 + Math.random() * 400);
-  const ey = cy + Math.sin(angle) * (200 + Math.random() * 300);
-  lightnings.push(new Lightning(cx + (Math.random()-0.5)*dist, cy + (Math.random()-0.5)*dist, ex, ey));
-}
-
-setInterval(spawnRandomLightning, 800 + Math.random() * 1200);
-setInterval(() => {
-  spawnRandomLightning();
-}, 2000);
-
-// === Осколки от курсора ===
-class Shard {
-  constructor(x, y, power) {
-    this.x = x;
-    this.y = y;
-    const angle = Math.random() * Math.PI * 2;
-    const speed = Math.random() * power + 1;
-    this.vx = Math.cos(angle) * speed;
-    this.vy = Math.sin(angle) * speed;
-    this.life = 1;
-    this.decay = 0.01 + Math.random() * 0.025;
-    this.size = Math.random() * 3 + 1;
-    this.hue = 0 + Math.random() * 25;
-  }
-  update() {
-    this.x += this.vx;
-    this.y += this.vy;
-    this.vx *= 0.98;
-    this.vy *= 0.98;
-    this.life -= this.decay;
-  }
-  draw() {
-    if (this.life <= 0) return;
-    tCtx.save();
-    tCtx.globalAlpha = this.life;
-    tCtx.translate(this.x, this.y);
-    tCtx.rotate(Math.atan2(this.vy, this.vx));
-    tCtx.fillStyle = `hsl(${this.hue}, 95%, 55%)`;
-    tCtx.fillRect(-this.size * 2, -this.size * 0.5, this.size * 4, this.size);
-    tCtx.restore();
-  }
-}
-
-let shards = [];
-let shardTimer = 0;
-
-// === Ударная волна ===
-class Shockwave {
-  constructor(x, y) {
-    this.x = x;
-    this.y = y;
-    this.radius = 0;
-    this.maxRadius = 250 + Math.random() * 150;
-    this.life = 1;
-  }
-  update() {
-    this.radius += (this.maxRadius - this.radius) * 0.08;
-    this.life -= 0.025;
-  }
-  draw() {
-    if (this.life <= 0) return;
-    fxCtx.beginPath();
-    fxCtx.arc(this.x, this.y, Math.max(1, this.radius), 0, Math.PI * 2);
-    fxCtx.strokeStyle = `rgba(232, 21, 46, ${this.life * 0.6})`;
-    fxCtx.lineWidth = 2 * this.life;
-    fxCtx.stroke();
-  }
-}
-
-let shockwaves = [];
-
-// === Клик — молния + ударная волна + осколки ===
-const flashEl = document.getElementById('flashOverlay');
-
-document.addEventListener('click', e => {
-  // Молния от центра к точке клика
-  const cx = innerWidth / 2;
-  const cy = innerHeight / 2;
-  lightnings.push(new Lightning(cx, cy, e.clientX, e.clientY));
-  // Обратная
-  lightnings.push(new Lightning(e.clientX, e.clientY, cx + (Math.random()-0.5)*200, cy + (Math.random()-0.5)*200));
-  // Дополнительные молнии от клика
-  for (let i = 0; i < 3; i++) {
-    const a = Math.random() * Math.PI * 2;
-    const d = 150 + Math.random() * 300;
-    lightnings.push(new Lightning(e.clientX, e.clientY, e.clientX + Math.cos(a)*d, e.clientY + Math.sin(a)*d));
-  }
-  // Ударная волна
-  shockwaves.push(new Shockwave(e.clientX, e.clientY));
-  shockwaves.push(new Shockwave(e.clientX, e.clientY));
-  // Осколки
-  for (let i = 0; i < 50; i++) {
-    shards.push(new Shard(e.clientX, e.clientY, 10));
-  }
-  // Вспышка
-  flashEl.style.transition = 'none';
-  flashEl.style.opacity = '0.25';
-  requestAnimationFrame(() => {
-    requestAnimationFrame(() => {
-      flashEl.style.transition = 'opacity 0.4s ease-out';
-      flashEl.style.opacity = '0';
-    });
-  });
-});
-
-// === Тач ===
-document.addEventListener('touchstart', e => {
-  const t = e.touches[0];
-  mx = t.clientX; my = t.clientY;
-  dot.style.left = mx + 'px'; dot.style.top = my + 'px';
-  const cx = innerWidth / 2, cy = innerHeight / 2;
-  lightnings.push(new Lightning(cx, cy, mx, my));
-  shockwaves.push(new Shockwave(mx, my));
-  for (let i = 0; i < 35; i++) shards.push(new Shard(mx, my, 8));
-  flashEl.style.transition = 'none';
-  flashEl.style.opacity = '0.2';
-  requestAnimationFrame(() => {
-    requestAnimationFrame(() => {
-      flashEl.style.transition = 'opacity 0.4s ease-out';
-      flashEl.style.opacity = '0';
-    });
-  });
-}, { passive: true });
-
-document.addEventListener('touchmove', e => {
-  const t = e.touches[0];
-  mx = t.clientX; my = t.clientY;
-  dot.style.left = mx + 'px'; dot.style.top = my + 'px';
-}, { passive: true });
-
-// === Главный цикл ===
-function loop() {
-  // Фон: свечение + искры + линии
-  bgCtx.clearRect(0, 0, bgCanvas.width, bgCanvas.height);
-  drawGlow();
-  sparks.forEach(s => { s.update(); s.draw(); });
-  drawLinks();
-
-  // FX: молнии + ударные волны
-  fxCtx.clearRect(0, 0, fxCanvas.width, fxCanvas.height);
-  lightnings.forEach(l => { l.update(); l.draw(); });
-  lightnings = lightnings.filter(l => l.life > 0);
-  shockwaves.forEach(s => { s.update(); s.draw(); });
-  shockwaves = shockwaves.filter(s => s.life > 0);
-
-  // Трейлы: осколки
-  tCtx.clearRect(0, 0, tCanvas.width, tCanvas.height);
-  shardTimer++;
-  if (shardTimer % 3 === 0) {
-    shards.push(new Shard(mx, my, 3));
-  }
-  shards.forEach(s => { s.update(); s.draw(); });
-  shards = shards.filter(s => s.life > 0);
-
-  requestAnimationFrame(loop);
-}
-loop();
-</script>
+  <h1>Привет, вонючка</h1>
 </body>
 </html>
