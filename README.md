@@ -1,1 +1,0 @@
-# strogo_aline
